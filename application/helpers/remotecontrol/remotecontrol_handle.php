@@ -2610,7 +2610,7 @@ class remotecontrol_handle
     * @param struct $aFileData array with two fields, name and content (file data encoded as BASE64)
     * @return array The file metadata with final upload path or error description
     */
-    public function upload_file($sSessionKey, $iSurveyID, $aFileData)
+    public function upload_file($sSessionKey, $iSurveyID, $sFieldName, $aFileData)
     {
         if (!$this->_checkSessionKey($sSessionKey)) return array('status' => 'Invalid session key');
 
@@ -2635,7 +2635,7 @@ class remotecontrol_handle
             mkdir($sTempUploadDir);
         }
 
-        $aFieldMap = createFieldMap($surveyid,'short',false,false,$sLanguage);
+        $aFieldMap = createFieldMap($iSurveyID, 'short', false, false, Yii::app()->getConfig('defaultlang'));
         if (!isset($aFieldMap[$sFieldName])) {
             return array('status' => 'Can not obtain field map');
         }
@@ -2646,7 +2646,7 @@ class remotecontrol_handle
         $maxfilesize = (int) $aAttributes['max_filesize'];
         $allowed_filetypes = $aAttributes['allowed_filetypes'];
         $valid_extensions_array = explode(",", $allowed_filetypes);
-        $valid_extensions_array = array_map('trim',$allowed_filetypes);
+        $valid_extensions_array = array_map('trim', $valid_extensions_array);
 
         $filename = $aFileData['name'];
         $pathinfo = pathinfo($filename);
