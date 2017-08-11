@@ -2607,10 +2607,11 @@ class remotecontrol_handle
     * @param string $sSessionKey Auth credentials
     * @param int $iSurveyID ID of the Survey to insert file
     * @param string $sFieldName the Field to upload file
-    * @param struct $aFileData array with two fields, name and content (file data encoded as BASE64)
+    * @param string $sFileName the uploaded file name
+    * @param string $sFileConten the uploaded file content encoded as BASE64
     * @return array The file metadata with final upload path or error description
     */
-    public function upload_file($sSessionKey, $iSurveyID, $sFieldName, $aFileData)
+    public function upload_file($sSessionKey, $iSurveyID, $sFieldName, $sFileName, $sFileContent)
     {
         if (!$this->_checkSessionKey($sSessionKey)) return array('status' => 'Invalid session key');
 
@@ -2648,8 +2649,7 @@ class remotecontrol_handle
         $valid_extensions_array = explode(",", $allowed_filetypes);
         $valid_extensions_array = array_map('trim', $valid_extensions_array);
 
-        $filename = $aFileData['name'];
-        $pathinfo = pathinfo($filename);
+        $pathinfo = pathinfo($sFileName);
         $ext = strtolower($pathinfo['extension']);
 
         // check to see that this file type is allowed
@@ -2658,7 +2658,7 @@ class remotecontrol_handle
         }
 
         // This also accounts for BASE64 overhead
-        $size = (0.001 * 3 * strlen(aFileData['content'])) / 4;
+        $size = (0.001 * 3 * strlen($sFileContent)) / 4;
 
         $randfilename = 'futmp_'.randomChars(15).'_'.$pathinfo['extension'];
         $randfileloc = $sTempUploadDir . $randfilename;
@@ -2671,7 +2671,7 @@ class remotecontrol_handle
             return array('status' => 'Not enough free space available');
         }
 
-        $uploaded = file_put_contents($randfileloc, base64_decode(aFileData['content']));
+        $uploaded = file_put_contents($randfileloc, base64_decode($sFileContent));
         if ($uploaded === FALSE) {
             return array('status' => 'Unable to write file');
         }
